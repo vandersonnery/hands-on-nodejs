@@ -11,6 +11,11 @@ class UserController {
     const { user } = req.body;
 
     try {
+	  // Aqui está a verificação de registro duplicado
+	  if(this.userDAO.getAll().find((u) => u.register == user.register)) {
+		return res.status(401).send({ success: false, error: "Ops! Registro já utilizado" });
+	  }
+
       const id = this.userDAO.generateId();
 
       const userModel = new UserModel({ id, ...user });
@@ -91,7 +96,12 @@ class UserController {
     const { user } = req.body;
 
     try {
-      const userToUpdate = this.userDAO.getById(id);
+	  const userToUpdate = this.userDAO.getById(id);
+	  
+	  // Aqui está a verificação de registro duplicado
+	  if(this.userDAO.getAll().find((u) => u.register == user.register && u.id != userToUpdate.id)) {
+		return res.status(401).send({ success: false, error: "Ops! Registro já utilizado" });
+	  }
 
       const userModel = new UserModel(Object.assign(userToUpdate, user));
       // const userModel = new UserModel({ ...userToUpdate, ...user });
