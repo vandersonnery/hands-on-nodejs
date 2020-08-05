@@ -46,7 +46,12 @@ class UserController {
         }
 
         return cond
-      })
+	  })
+	  
+	  // Retorno de vazio
+	  if(!filteredUsers) {
+		  return res.send({ success: true, message: "Ops! Não foi encontrado nenhum usuario na pesquisa" });
+	  }
 
       res.send({ success: true, users: filteredUsers });
     } catch (error) {
@@ -59,7 +64,12 @@ class UserController {
       const { id } = req.params;
       const { key } = req.file;
 
-      const userToBeUpdated = this.userDAO.getById(id);
+	  const userToBeUpdated = this.userDAO.getById(id);
+	  
+	  // Não encontrou o usuario
+	  if(!userToBeUpdated) {
+		  return res.status(401).send({ success: false, error: "Ops! Usuário inexistente" });
+	  }
 
       // const userModel = new UserModel(Object.assign(userToBeUpdated, { image: `http://localhost:3001/files/${key}` }));
       const userModel = new UserModel({
@@ -83,7 +93,12 @@ class UserController {
     const { id } = req.params;
 
     try {
-      const user = this.userDAO.getById(id);
+	  const user = this.userDAO.getById(id);
+	  
+	  // Não encontrou o usuário
+	  if(!user) {
+		  return res.status(401).send({ success: false, error: "Ops! Usuário inexistente" });
+	  }
 
       res.send({ success: true, user });
     } catch (error) {
@@ -97,6 +112,11 @@ class UserController {
 
     try {
 	  const userToUpdate = this.userDAO.getById(id);
+
+	  // Não encontrou o usuário
+	  if(!userToUpdate) {
+		  return res.status(401).send({ success: false, error: "Ops! Usuário inexistente" });
+	  }
 	  
 	  // Aqui está a verificação de registro duplicado
 	  if(this.userDAO.getAll().find((u) => u.register == user.register && u.id != userToUpdate.id)) {
@@ -118,7 +138,12 @@ class UserController {
     const { id } = req.params;
 
     try {
-      this.userDAO.delete(id);
+	  // Não encontrou o usuário
+	  if(!this.userDAO.getById(id)) {
+		  return res.status(401).send({ success: false, error: "Ops! Usuário inexistente" });
+	  }
+	  
+	  this.userDAO.delete(id);
 
       res.send({ success: true });
     } catch (error) {
